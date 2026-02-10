@@ -15,6 +15,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(404, "P001", "해당 게시글을 찾을 수 없습니다."),
     POST_DELETE_NOT_ALLOWED(404, "P002", "해당 사용자는 게시글을 삭제할 수 없습니다."),
     NOT_POST_OWNER(403, "P003", "해당 사용자는 게시글을 수정할 권한이 없습니다."),
+
     // 사용자(User) 관련 에러
     USER_NOT_FOUND(404, "U001", "해당 사용자를 찾을 수 없습니다."),
 

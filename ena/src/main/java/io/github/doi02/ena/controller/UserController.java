@@ -21,10 +21,10 @@ public class UserController {
 
     // 로그인 기능
     @Operation(
-            summary = "공략 게시글 작성",
-            description = "사용자가 게시판에 글을 작성합니다."
+            summary = "사용자 로그인",
+            description = "사용자가 게시판 사이트에 로그인합니다."
     )
-    @ApiResponse(responseCode = "201", description = "작성 성공")
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     @PostMapping("/session")
     ResponseEntity<SessionResponse> createSession(@RequestBody SessionRequest request) {

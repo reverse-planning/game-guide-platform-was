@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/**").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable());
@@ -42,7 +42,8 @@ public class SecurityConfig {
                 "https://game-guide-platform-web.vercel.app",
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://api.doi2.my"
+                "https://api.doi2.my",
+                "https://doi2.my"
         ));
 
         // 모든 HTTP 메서드 허용

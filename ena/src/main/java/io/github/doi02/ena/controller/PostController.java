@@ -1,9 +1,6 @@
 package io.github.doi02.ena.controller;
 
-import io.github.doi02.ena.dto.post.PostCreateRequest;
-import io.github.doi02.ena.dto.post.PostDeleteRequest;
-import io.github.doi02.ena.dto.post.PostDetailResponse;
-import io.github.doi02.ena.dto.post.PostListResponse;
+import io.github.doi02.ena.dto.post.*;
 import io.github.doi02.ena.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -89,9 +86,10 @@ public class PostController {
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     //@ApiResponse(responseCode = "400", description = "검색 실패")
     @GetMapping("/guide")
-    public ResponseEntity<Slice<PostListResponse>> searchGuides(
+    public ResponseEntity<PostSliceResponse<PostListResponse>> searchGuides(
             @RequestParam(value = "query", defaultValue = "") String query,
             Pageable pageable) {
-        return ResponseEntity.ok(postService.searchGuides(query, pageable));
+        Slice<PostListResponse> result = postService.searchGuides(query, pageable);
+        return ResponseEntity.ok(PostSliceResponse.from(result));
     }
 }
