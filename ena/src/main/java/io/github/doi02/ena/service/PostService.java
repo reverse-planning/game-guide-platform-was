@@ -54,10 +54,13 @@ public class PostService {
 
     //게시글 수정 (더티체크)
     @Transactional
-    public void updatePost(Long id, PostCreateRequest request) {
-        Post post = postRepository.findById(id)
+    public void updatePost(Long postId, Long userId ,PostCreateRequest request) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
+        if (!post.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NOT_POST_OWNER);
+        }
         // 데이터가 있을 때만 수정
         if (request.getTitle() != null) post.setTitle(request.getTitle());
         if (request.getBody() != null) post.setBody(request.getBody());
@@ -67,11 +70,13 @@ public class PostService {
 
     //게시글 삭제
     @Transactional
-    public void deletePost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+    public void deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        if (!post.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NOT_POST_OWNER);
         }
-        postRepository.deleteById(id);
+        postRepository.deleteById(postId);
     }
 
     // 게시글 검색 (GET)

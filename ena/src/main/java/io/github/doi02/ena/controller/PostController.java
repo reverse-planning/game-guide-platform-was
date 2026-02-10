@@ -1,6 +1,7 @@
 package io.github.doi02.ena.controller;
 
 import io.github.doi02.ena.dto.post.PostCreateRequest;
+import io.github.doi02.ena.dto.post.PostDeleteRequest;
 import io.github.doi02.ena.dto.post.PostDetailResponse;
 import io.github.doi02.ena.dto.post.PostListResponse;
 import io.github.doi02.ena.service.PostService;
@@ -55,12 +56,12 @@ public class PostController {
             description = "사용자가 자신의 게시글을 수정합니다."
     )
     @ApiResponse(responseCode = "200", description = "수정 성공")
-    //@ApiResponse(responseCode = "400", description = "다른 사용자가 게시글 수정을 시도함")
+    @ApiResponse(responseCode = "403", description = "다른 사용자가 게시글 수정을 시도함")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
     @PatchMapping("/guide/{id}")
-    public ResponseEntity<Void> updateGuide(@PathVariable Long id, @RequestBody PostCreateRequest request) {
-        postService.updatePost(id, request);
+    public ResponseEntity<Void> updateGuide(@PathVariable(name = "id") Long postId, @RequestBody PostCreateRequest request) {
+        postService.updatePost(postId, request.getUserId(), request);
         return ResponseEntity.ok().build();
     }
 
@@ -70,11 +71,11 @@ public class PostController {
             description = "사용자가 자신의 게시글을 삭제합니다."
     )
     @ApiResponse(responseCode = "204", description = "삭제 성공")
-    //@ApiResponse(responseCode = "400", description = "다른 사용자가 게시글 삭제를 시도함")
+    @ApiResponse(responseCode = "403", description = "다른 사용자가 게시글 삭제를 시도함")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
     @DeleteMapping("/guide/{id}")
-    public ResponseEntity<Void> deleteGuide(@PathVariable Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deleteGuide(@PathVariable Long id, @RequestBody PostDeleteRequest request) {
+        postService.deletePost(id, request.getUserId());
         return ResponseEntity.noContent().build();
     }
 
