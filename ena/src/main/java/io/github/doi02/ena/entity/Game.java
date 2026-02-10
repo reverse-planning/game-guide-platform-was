@@ -12,7 +12,7 @@ import lombok.*;
 @Entity
 @Table(name = "GAME", uniqueConstraints = {@UniqueConstraint(
         name = "ID_NAME_UNIQUE",
-        columnNames={"ID", "NAME"}
+        columnNames={"GAME_ID", "GAME_NAME"}
 )})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Game {

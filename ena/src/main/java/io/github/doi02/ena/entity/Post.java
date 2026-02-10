@@ -3,6 +3,9 @@ package io.github.doi02.ena.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -11,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "POST")
 public class Post {
@@ -33,9 +37,16 @@ public class Post {
     private Game game;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "USER", nullable = false)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
+    @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="CREATED_AT", nullable = false, updatable = false)
+    private Date createdAt;
+
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="UPDATED_AT", nullable = false)
     private Date updatedAt;
 }

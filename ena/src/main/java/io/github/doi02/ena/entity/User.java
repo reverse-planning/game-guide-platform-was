@@ -2,6 +2,8 @@ package io.github.doi02.ena.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -12,9 +14,10 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name ="USER", uniqueConstraints = {@UniqueConstraint(
         name = "ID_NICKNAME_UNIQUE",
-        columnNames = {"ID", "NICKNAME"} )})
+        columnNames = {"USER_ID", "NICKNAME"} )})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
@@ -23,10 +26,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(name="NICKNAME", nullable = false, length = 10)
     private String nickname;
 
+    @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="CREATED_AT", updatable = false)
     private Date CreatedAt;
 
     private String socialLoginId;

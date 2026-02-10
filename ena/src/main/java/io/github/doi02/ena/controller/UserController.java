@@ -1,12 +1,18 @@
 package io.github.doi02.ena.controller;
 
+import io.github.doi02.ena.dto.post.PostCreateRequest;
 import io.github.doi02.ena.dto.user.SessionRequest;
 import io.github.doi02.ena.dto.user.SessionResponse;
 import io.github.doi02.ena.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "User", description = "유저 관련 API")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -14,6 +20,12 @@ public class UserController {
     private final UserService userService;
 
     // 로그인 기능
+    @Operation(
+            summary = "공략 게시글 작성",
+            description = "사용자가 게시판에 글을 작성합니다."
+    )
+    @ApiResponse(responseCode = "201", description = "작성 성공")
+    //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     @PostMapping("/session")
     ResponseEntity<SessionResponse> createSession(@RequestBody SessionRequest request) {
         SessionResponse response = userService.loginOrRegister(request.getNickname());

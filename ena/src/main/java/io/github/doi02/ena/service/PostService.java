@@ -1,6 +1,9 @@
 package io.github.doi02.ena.service;
 
+import io.github.doi02.ena.common.exception.BusinessException;
+import io.github.doi02.ena.common.exception.ErrorCode;
 import io.github.doi02.ena.dto.post.PostCreateRequest;
+import io.github.doi02.ena.dto.post.PostDetailResponse;
 import io.github.doi02.ena.dto.post.PostListResponse;
 import io.github.doi02.ena.entity.Game;
 import io.github.doi02.ena.entity.Post;
@@ -24,27 +27,36 @@ public class PostService {
     private final UserRepository userRepository;
 
     // 게시글 작성
+    @Transactional
     public Long createPost(PostCreateRequest request) {
         Game game = gameRepository.findById(request.getGameId())
-                .orElseThrow(() -> new IllegalArgumentException("게임이 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.GAME_NOT_FOUND));
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Post post = Post.builder()
                 .title(request.getTitle())
                 .body(request.getBody())
                 .user(user)
+                .game(game)
                 .updatedAt(new Date())
                 .build();
 
         return postRepository.save(post).getId();
     }
 
+    // 게시글 조회
+    public PostDetailResponse getPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        return PostDetailResponse.from(post);
+    }
+
     //게시글 수정 (더티체크)
     @Transactional
     public void updatePost(Long id, PostCreateRequest request) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         // 데이터가 있을 때만 수정
         if (request.getTitle() != null) post.setTitle(request.getTitle());
@@ -56,13 +68,22 @@ public class PostService {
     //게시글 삭제
     @Transactional
     public void deletePost(Long id) {
+        if (!postRepository.existsById(id)) {
+            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+        }
         postRepository.deleteById(id);
     }
 
     // 게시글 검색 (GET)
     public Slice<PostListResponse> searchGuides(String keyword, Pageable pageable) {
         return postRepository.findByKeyword(keyword, pageable)
-                .map(this::convertToResponse); // 중복되는 변환 로직은 메서드로 분리
+                .map(this::convertToResponse);
+    }
+
+    // 게시글 목록 (무한 스크롤)
+    public Slice<PostListResponse> getGuides(Pageable pageable) {
+        return postRepository.findAllByOrderByUpdatedAtDesc(pageable)
+                .map(this::convertToResponse);
     }
     private PostListResponse convertToResponse(Post p) {
         return new PostListResponse(
@@ -73,18 +94,5 @@ public class PostService {
                 p.getUser().getNickname(),
                 p.getUpdatedAt()
         );
-    }
-
-    // 게시글 목록 (무한 스크롤)
-    public Slice<PostListResponse> getGuides(Pageable pageable) {
-        return postRepository.findAllByOrderByUpdatedAtDesc(pageable)
-                .map(p -> new PostListResponse(
-                        p.getId(),
-                        p.getTitle(),
-                        p.getBody().substring(0, Math.min(p.getBody().length(), 100)), // 100자 요약
-                        p.getGame().getName(),
-                        p.getUser().getNickname(),
-                        p.getUpdatedAt()
-                ));
     }
 }
