@@ -43,7 +43,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "https://api.doi2.my",
-                "https://doi2.my"
+                "https://doi2.my",
+                "https://www.doi2.my"
         ));
 
         // 모든 HTTP 메서드 허용

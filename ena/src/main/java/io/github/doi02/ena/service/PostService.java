@@ -29,7 +29,7 @@ public class PostService {
     // 게시글 작성
     @Transactional
     public Long createPost(PostCreateRequest request) {
-        Game game = gameRepository.findById(request.getGameId())
+        Game game = gameRepository.findByName(request.getGame())
                 .orElseThrow(() -> new BusinessException(ErrorCode.GAME_NOT_FOUND));
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));

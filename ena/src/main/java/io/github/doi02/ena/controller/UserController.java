@@ -1,6 +1,5 @@
 package io.github.doi02.ena.controller;
 
-import io.github.doi02.ena.dto.post.PostCreateRequest;
 import io.github.doi02.ena.dto.user.SessionRequest;
 import io.github.doi02.ena.dto.user.SessionResponse;
 import io.github.doi02.ena.service.UserService;
@@ -8,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

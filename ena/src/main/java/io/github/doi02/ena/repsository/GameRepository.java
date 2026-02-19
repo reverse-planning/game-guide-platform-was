@@ -3,6 +3,8 @@ package io.github.doi02.ena.repsository;
 import io.github.doi02.ena.entity.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface GameRepository extends JpaRepository<Game, Long>{
+import java.util.Optional;
 
+public interface GameRepository extends JpaRepository<Game, Long>{
+    Optional<Game> findByName(String name);
 }

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 public class PostCreateRequest {
     private String title;
     private String body;
-    private Long gameId;
+    private String game;
     private Long userId;
 }

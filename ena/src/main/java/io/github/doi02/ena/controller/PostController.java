@@ -28,7 +28,7 @@ public class PostController {
     @ApiResponse(responseCode = "201", description = "작성 성공")
     @ApiResponse(responseCode = "404", description = "게임을 찾을 수 없음")
     @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
-    @PostMapping("/guide")
+    @PostMapping("/guides")
     public ResponseEntity<Long> createGuide(@RequestBody PostCreateRequest request) {
         Long postId = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(postId);
@@ -42,7 +42,7 @@ public class PostController {
     @ApiResponse(responseCode = "200", description = "작성 성공")
     @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
-    @GetMapping("/guide/{id}")
+    @GetMapping("/guides/{id}")
     public ResponseEntity<PostDetailResponse> getGuide(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPost(id));
     }
@@ -56,7 +56,7 @@ public class PostController {
     @ApiResponse(responseCode = "403", description = "다른 사용자가 게시글 수정을 시도함")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
-    @PatchMapping("/guide/{id}")
+    @PatchMapping("/guides/{id}")
     public ResponseEntity<Void> updateGuide(@PathVariable(name = "id") Long postId, @RequestBody PostCreateRequest request) {
         postService.updatePost(postId, request.getUserId(), request);
         return ResponseEntity.ok().build();
@@ -70,7 +70,7 @@ public class PostController {
     @ApiResponse(responseCode = "204", description = "삭제 성공")
     @ApiResponse(responseCode = "403", description = "다른 사용자가 게시글 삭제를 시도함")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
-    @DeleteMapping("/guide/{id}")
+    @DeleteMapping("/guides/{id}")
     public ResponseEntity<Void> deleteGuide(@PathVariable Long id, @RequestBody PostDeleteRequest request) {
         postService.deletePost(id, request.getUserId());
         return ResponseEntity.noContent().build();
@@ -85,7 +85,7 @@ public class PostController {
     //@ApiResponse(responseCode = "204", description = "아무 게시글도 존재하지 않음")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     //@ApiResponse(responseCode = "400", description = "검색 실패")
-    @GetMapping("/guide")
+    @GetMapping("/guides")
     public ResponseEntity<PostSliceResponse<PostListResponse>> searchGuides(
             @RequestParam(value = "query", defaultValue = "") String query,
             Pageable pageable) {
