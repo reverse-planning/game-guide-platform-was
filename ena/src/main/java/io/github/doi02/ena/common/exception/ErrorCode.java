@@ -20,7 +20,10 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "U001", "해당 사용자를 찾을 수 없습니다."),
 
     // 게임(Game) 관련 에러
-    GAME_NOT_FOUND(404, "G001", "해당 게임을 찾을 수 없습니다.");
+    GAME_NOT_FOUND(404, "G001", "해당 게임을 찾을 수 없습니다."),
+
+    // 토큰 관련 에러
+    INVALID_TOKEN(401, "T001", "만료되었거나 잘못된 토큰입니다.");
 
     private final int status;
     private final String code;

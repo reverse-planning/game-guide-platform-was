@@ -1,8 +1,10 @@
 package io.github.doi02.ena.controller;
 
+import io.github.doi02.ena.common.config.LoginUser;
 import io.github.doi02.ena.dto.post.*;
 import io.github.doi02.ena.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +31,10 @@ public class PostController {
     @ApiResponse(responseCode = "404", description = "게임을 찾을 수 없음")
     @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
     @PostMapping("/guides")
-    public ResponseEntity<Long> createGuide(@RequestBody PostCreateRequest request) {
-        Long postId = postService.createPost(request);
+    public ResponseEntity<Long> createGuide(
+            @Parameter(hidden = true) @LoginUser Long userId,
+            @RequestBody PostCreateRequest request) {
+        Long postId = postService.createPost(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
@@ -57,8 +61,12 @@ public class PostController {
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
     @PatchMapping("/guides/{id}")
-    public ResponseEntity<Void> updateGuide(@PathVariable(name = "id") Long postId, @RequestBody PostCreateRequest request) {
-        postService.updatePost(postId, request.getUserId(), request);
+    public ResponseEntity<Void> updateGuide(
+            @PathVariable(name = "id") Long postId,
+            @Parameter(hidden = true) @LoginUser Long userId,
+            @RequestBody PostCreateRequest request) {
+
+        postService.updatePost(postId, userId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -71,8 +79,10 @@ public class PostController {
     @ApiResponse(responseCode = "403", description = "다른 사용자가 게시글 삭제를 시도함")
     //@ApiResponse(responseCode = "400", description = "존재하지 않는 게시글")
     @DeleteMapping("/guides/{id}")
-    public ResponseEntity<Void> deleteGuide(@PathVariable Long id, @RequestBody PostDeleteRequest request) {
-        postService.deletePost(id, request.getUserId());
+    public ResponseEntity<Void> deleteGuide(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @LoginUser Long userId) {
+        postService.deletePost(id, userId);
         return ResponseEntity.noContent().build();
     }
 

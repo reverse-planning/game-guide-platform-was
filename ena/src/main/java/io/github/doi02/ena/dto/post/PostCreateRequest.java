@@ -10,5 +10,4 @@ public class PostCreateRequest {
     private String title;
     private String body;
     private String game;
-    private Long userId;
 }
