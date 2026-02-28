@@ -49,4 +49,11 @@ public class Post {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="UPDATED_AT", nullable = false)
     private Date updatedAt;
+
+    @Column(name = "VIEW_COUNT", nullable = false)
+    private Long viewCount = 0L;
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
 }

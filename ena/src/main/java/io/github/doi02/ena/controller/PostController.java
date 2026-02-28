@@ -1,3 +1,4 @@
+
 package io.github.doi02.ena.controller;
 
 import io.github.doi02.ena.common.config.LoginUser;
@@ -103,3 +104,4 @@ public class PostController {
         return ResponseEntity.ok(PostSliceResponse.from(result));
     }
 }
+

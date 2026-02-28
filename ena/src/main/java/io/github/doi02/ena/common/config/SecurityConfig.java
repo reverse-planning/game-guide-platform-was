@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // 2. 로그인 API는 누구나 접근 가능
-                        .requestMatchers("/api/session", "/api/reissue").permitAll()
+                        .requestMatchers("/api/session", "/api/reissue", "/api/").permitAll()
                         // 3. 나머지 API는 인증 필요
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()

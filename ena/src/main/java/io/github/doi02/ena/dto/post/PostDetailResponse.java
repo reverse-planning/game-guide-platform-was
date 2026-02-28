@@ -17,6 +17,7 @@ public class PostDetailResponse {
     private String game;
     private String author;
     private Date updatedAt;
+    private Long viewCount;
 
     public static PostDetailResponse from(Post post) {
         return PostDetailResponse.builder()
@@ -26,6 +27,7 @@ public class PostDetailResponse {
                 .game(post.getGame().getName())
                 .author(post.getUser().getNickname())
                 .updatedAt(post.getUpdatedAt())
+                .viewCount(post.getViewCount())
                 .build();
     }
 }

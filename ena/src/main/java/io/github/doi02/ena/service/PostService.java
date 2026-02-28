@@ -47,12 +47,15 @@ public class PostService {
 
     // 게시글 조회
     public PostDetailResponse getPost(Long id) {
+        //조회수 증가
+        postRepository.updateViewCount(id);
+
         Post post = postRepository.findById(id)
                 .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
         return PostDetailResponse.from(post);
     }
 
-    //게시글 수정 (더티체크)
+    //게시글 수정
     @Transactional
     public void updatePost(Long postId, Long userId ,PostCreateRequest request) {
         Post post = postRepository.findById(postId)
@@ -61,9 +64,15 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.NOT_POST_OWNER);
         }
-        // 데이터가 있을 때만 수정
+
+        // 수정될 데이터가 있을 때만 수정
         if (request.getTitle() != null) post.setTitle(request.getTitle());
         if (request.getBody() != null) post.setBody(request.getBody());
+        if (request.getGame() != null) {
+            Game game = gameRepository.findByName(request.getGame())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.GAME_NOT_FOUND));
+            post.setGame(game);
+        }
 
         post.setUpdatedAt(new Date()); // 수정 시간 갱신
     }
@@ -82,22 +91,12 @@ public class PostService {
     // 게시글 검색 (GET)
     public Slice<PostListResponse> searchGuides(String keyword, Pageable pageable) {
         return postRepository.findByKeyword(keyword, pageable)
-                .map(this::convertToResponse);
+                .map(PostListResponse::from);
     }
 
     // 게시글 목록 (무한 스크롤)
     public Slice<PostListResponse> getGuides(Pageable pageable) {
         return postRepository.findAllByOrderByUpdatedAtDesc(pageable)
-                .map(this::convertToResponse);
-    }
-    private PostListResponse convertToResponse(Post p) {
-        return new PostListResponse(
-                p.getId(),
-                p.getTitle(),
-                p.getBody().substring(0, Math.min(p.getBody().length(), 100)),
-                p.getGame().getName(),
-                p.getUser().getNickname(),
-                p.getUpdatedAt()
-        );
+                .map(PostListResponse::from);
     }
 }
