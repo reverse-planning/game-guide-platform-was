@@ -1,10 +1,9 @@
 package io.github.doi02.ena.service;
 
-import io.github.doi02.ena.common.config.JwtTokenProvider; // 패키지 경로 확인 필요
+import io.github.doi02.ena.common.config.JwtTokenProvider;
 import io.github.doi02.ena.common.exception.BusinessException;
 import io.github.doi02.ena.common.exception.ErrorCode;
 import io.github.doi02.ena.dto.user.LoginDto;
-import io.github.doi02.ena.dto.user.SessionResponse;
 import io.github.doi02.ena.entity.User;
 import io.github.doi02.ena.repsository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -83,24 +82,31 @@ public class UserService {
         return new LoginDto(user.getId(), user.getNickname(), newAccessToken, newRefreshToken);
     }
 
-    @Transactional
     public void logout(String accessToken, String refreshToken) {
-        // Access Token에서 User ID 추출 (Blacklist 및 RT 삭제를 위함)
-        // validateToken이 실패하더라도 로그아웃 처리를 위해 만료된 토큰에서도 정보를 가져올 수 있어야 함
-        Long userId = Long.valueOf(jwtTokenProvider.getSubject(accessToken));
-
-        // Redis에서 해당 유저의 Refresh Token 삭제
-        if (redisTemplate.opsForValue().get("RT:" + userId) != null) {
-            redisTemplate.delete("RT:" + userId);
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        // Access Token Blacklist 등록
-        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        String email = jwtTokenProvider.getSubject(refreshToken);
+        String redisRT = redisTemplate.opsForValue().get("RT:" + email);
+
+        if (redisRT == null) {
+            throw new BusinessException(ErrorCode.ALREADY_LOGGED_OUT);
+        }
+
+        Boolean deleted = redisTemplate.delete("RT:" + email);
+        if (Boolean.FALSE.equals(deleted)) {
+            throw new BusinessException(ErrorCode.REDIS_ERROR);
+        }
+
+        long expiration = jwtTokenProvider.getExpiration(accessToken);
         redisTemplate.opsForValue().set(
-                "BL:" + accessToken, // Blacklist Key
-                "logout",            // Value (단순 표시용)
-                expiration,          // 남은 시간
+                "BL:" + accessToken,
+                "logout",
+                expiration,
                 TimeUnit.MILLISECONDS
         );
     }
+
+
 }

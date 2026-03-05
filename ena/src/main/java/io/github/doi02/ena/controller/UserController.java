@@ -1,11 +1,17 @@
 package io.github.doi02.ena.controller;
 
+import io.github.doi02.ena.common.config.LoginUser;
+import io.github.doi02.ena.common.exception.BusinessException;
+import io.github.doi02.ena.common.exception.ErrorCode;
 import io.github.doi02.ena.dto.user.LoginDto;
 import io.github.doi02.ena.dto.user.SessionRequest;
 import io.github.doi02.ena.dto.user.SessionResponse;
 import io.github.doi02.ena.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +77,32 @@ public class UserController {
         return ResponseEntity.ok(new SessionResponse(
                 loginDto.getAccessToken()
         ));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @Parameter(hidden = true) @LoginUser Long userId,
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authorization,
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        String accessToken = authorization.substring(7);
+        userService.logout(accessToken, refreshToken);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok().build();
     }
 }
