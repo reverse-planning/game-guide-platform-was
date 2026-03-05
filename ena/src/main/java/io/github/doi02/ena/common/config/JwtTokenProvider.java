@@ -95,4 +95,19 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    // 토큰의 만료시간 추출
+    public Long getExpiration(String token) {
+        // 토큰의 만료 시간 - 현재 시간 = 남은 시간
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
+
 }

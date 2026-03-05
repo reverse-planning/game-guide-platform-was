@@ -82,4 +82,25 @@ public class UserService {
 
         return new LoginDto(user.getId(), user.getNickname(), newAccessToken, newRefreshToken);
     }
+
+    @Transactional
+    public void logout(String accessToken, String refreshToken) {
+        // Access Token에서 User ID 추출 (Blacklist 및 RT 삭제를 위함)
+        // validateToken이 실패하더라도 로그아웃 처리를 위해 만료된 토큰에서도 정보를 가져올 수 있어야 함
+        Long userId = Long.valueOf(jwtTokenProvider.getSubject(accessToken));
+
+        // Redis에서 해당 유저의 Refresh Token 삭제
+        if (redisTemplate.opsForValue().get("RT:" + userId) != null) {
+            redisTemplate.delete("RT:" + userId);
+        }
+
+        // Access Token Blacklist 등록
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        redisTemplate.opsForValue().set(
+                "BL:" + accessToken, // Blacklist Key
+                "logout",            // Value (단순 표시용)
+                expiration,          // 남은 시간
+                TimeUnit.MILLISECONDS
+        );
+    }
 }

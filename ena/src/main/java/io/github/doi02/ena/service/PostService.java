@@ -46,6 +46,7 @@ public class PostService {
     }
 
     // 게시글 조회
+    @Transactional
     public PostDetailResponse getPost(Long id) {
         //조회수 증가
         postRepository.updateViewCount(id);

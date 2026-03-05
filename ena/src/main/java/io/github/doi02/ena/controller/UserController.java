@@ -34,7 +34,7 @@ public class UserController {
         // Refresh Token을 담은 HttpOnly 쿠키 생성
         ResponseCookie cookie = ResponseCookie.from("refreshToken", loginDto.getRefreshToken())
                 .httpOnly(true)
-                .secure(false) // 로컬(HTTP) 테스트를 위해 잠시 false 배포시 true로 고치기
+                .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7일
                 .sameSite("Lax")
@@ -45,8 +45,6 @@ public class UserController {
 
         // Body에는 Access Token과 유저 정보만 담아서 전송 (refresh token빼고)
         return ResponseEntity.ok(new SessionResponse(
-                loginDto.getUserId(),
-                loginDto.getNickname(),
                 loginDto.getAccessToken()
         ));
     }
@@ -62,7 +60,7 @@ public class UserController {
         // 새로운 Refresh Token을 쿠키에 담기
         ResponseCookie cookie = ResponseCookie.from("refreshToken", loginDto.getRefreshToken())
                 .httpOnly(true)
-                .secure(false) // 배포 시 true
+                .secure(true) // 배포 시 true
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
                 .sameSite("Lax")
@@ -71,8 +69,6 @@ public class UserController {
 
         // 새로운 Access Token 반환
         return ResponseEntity.ok(new SessionResponse(
-                loginDto.getUserId(),
-                loginDto.getNickname(),
                 loginDto.getAccessToken()
         ));
     }
