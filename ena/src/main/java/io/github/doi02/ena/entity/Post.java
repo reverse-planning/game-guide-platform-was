@@ -50,7 +50,8 @@ public class Post {
     @Column(name="UPDATED_AT", nullable = false)
     private Date updatedAt;
 
-    @Column(name = "VIEW_COUNT", nullable = false)
+    @Builder.Default
+    @Column(name = "VIEW_COUNT", nullable = false, columnDefinition = "bigint default 0")
     private Long viewCount = 0L;
 
     public void incrementViewCount() {
