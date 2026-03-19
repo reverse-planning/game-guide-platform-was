@@ -6,12 +6,11 @@ import io.github.doi02.ena.common.exception.ErrorCode;
 import io.github.doi02.ena.dto.user.LoginDto;
 import io.github.doi02.ena.dto.user.SessionRequest;
 import io.github.doi02.ena.dto.user.SessionResponse;
+import io.github.doi02.ena.dto.user.AccessResponse;
 import io.github.doi02.ena.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +50,19 @@ public class UserController {
 
         // Body에는 Access Token과 유저 정보만 담아서 전송 (refresh token빼고)
         return ResponseEntity.ok(new SessionResponse(
+                loginDto.getNickname(),
                 loginDto.getAccessToken()
         ));
+    }
+
+    @Operation(summary = "액세스 토큰 유효성 체크", description = "보유한 Access Token이 유효한지 확인합니다.")
+    @GetMapping("/session")
+    public ResponseEntity<AccessResponse> sessionCheck(@Parameter(hidden = true) @LoginUser Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+        AccessResponse accessResponse = userService.sessionCheck(userId);
+        return ResponseEntity.ok(accessResponse);
     }
 
     @Operation(summary = "토큰 재발급", description = "Refresh Token을 이용해 Access Token을 재발급합니다.")
@@ -75,6 +85,7 @@ public class UserController {
 
         // 새로운 Access Token 반환
         return ResponseEntity.ok(new SessionResponse(
+                loginDto.getNickname(),
                 loginDto.getAccessToken()
         ));
     }

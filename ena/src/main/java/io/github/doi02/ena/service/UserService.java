@@ -3,6 +3,7 @@ package io.github.doi02.ena.service;
 import io.github.doi02.ena.common.config.JwtTokenProvider;
 import io.github.doi02.ena.common.exception.BusinessException;
 import io.github.doi02.ena.common.exception.ErrorCode;
+import io.github.doi02.ena.dto.user.AccessResponse;
 import io.github.doi02.ena.dto.user.LoginDto;
 import io.github.doi02.ena.entity.User;
 import io.github.doi02.ena.repsository.UserRepository;
@@ -82,6 +83,7 @@ public class UserService {
         return new LoginDto(user.getId(), user.getNickname(), newAccessToken, newRefreshToken);
     }
 
+    @Transactional
     public void logout(String accessToken, String refreshToken) {
         if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
             throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
@@ -108,5 +110,10 @@ public class UserService {
         );
     }
 
+    public AccessResponse sessionCheck(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return (new AccessResponse(user.getNickname()));
+    }
 
 }
