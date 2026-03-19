@@ -1,5 +1,7 @@
 package io.github.doi02.ena.common.config;
 
+import io.github.doi02.ena.common.exception.BusinessException;
+import io.github.doi02.ena.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.Arrays;
 
@@ -20,7 +23,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,6 +40,12 @@ public class SecurityConfig {
                         // 3. 나머지 API는 인증 필요
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            handlerExceptionResolver.resolveException(request, response, null,
+                                    new BusinessException(ErrorCode.INVALID_TOKEN));
+                        })
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

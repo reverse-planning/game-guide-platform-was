@@ -1,5 +1,9 @@
 package io.github.doi02.ena.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.doi02.ena.common.exception.ErrorCode;
+import io.github.doi02.ena.common.exception.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,18 +25,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 요청 헤더에서 JWT 토큰 추출
         String token = resolveToken(request);
 
-        // 토큰 유효성 검사
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            // 토큰이 유효하면 인증 객체를 생성해서 SecurityContext에 저장
-            // 이렇게 저장하면 컨트롤러에 도달했을 때 로그인된 사용자로 인식함
-            Authentication auth = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            // 토큰 만료 시 401 응답 직접 생성
+            setErrorResponse(response, ErrorCode.INVALID_TOKEN);
         }
+    }
 
-        filterChain.doFilter(request, response);
+    private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(errorCode.getStatus());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(ErrorResponse.builder()
+                .status(errorCode.getStatus())
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build());
+
+        response.getWriter().write(json);
     }
 
     // Header에서 값을 추출
