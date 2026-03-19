@@ -56,6 +56,19 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
+    // 수정용 폼 조회
+    @Transactional
+    public PostDetailResponse getEditForm(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NOT_POST_OWNER);
+        }
+
+        return PostDetailResponse.from(post);
+    }
+
     //게시글 수정
     @Transactional
     public void updatePost(Long postId, Long userId ,PostCreateRequest request) {

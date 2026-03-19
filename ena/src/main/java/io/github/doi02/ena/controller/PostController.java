@@ -44,12 +44,27 @@ public class PostController {
             summary = "게시글 상세 페이지 요청",
             description = "사용자가 게시글의 상세를 확인합니다."
     )
-    @ApiResponse(responseCode = "200", description = "작성 성공")
+    @ApiResponse(responseCode = "200", description = "상세 조회 성공")
     @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     @GetMapping("/guides/{id}")
-    public ResponseEntity<PostDetailResponse> getGuide(@PathVariable Long id) {
+    public ResponseEntity<PostDetailResponse> getEditForm(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPost(id));
+    }
+
+    // 게시글 수정용 폼 요청
+    @Operation(
+            summary = "게시글 수정용 상세 페이지 요청",
+            description = "사용자가 게시글의 수정용 상세를 확인합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "상세 조회 성공")
+    @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    //@ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
+    @GetMapping("/guides/{id}/edit")
+    public ResponseEntity<PostDetailResponse> getGuide(
+            @PathVariable(name = "id") Long postId,
+            @Parameter(hidden = true) @LoginUser Long userId) {
+        return ResponseEntity.ok(postService.getEditForm(postId, userId));
     }
 
     // 게시글 수정
